@@ -32,7 +32,6 @@ def path_obstacle_free(points , obstacles):
 				return False 
 	return True
 
-
 #points = dynamic_1.pointPath
 
 # start, end -> tuples
@@ -43,25 +42,5 @@ def dynamic_rrt(start , end , path , obstacle_list):
 	path = [Point(p[0] , p[1]) for p in path]
 	if not path_obstacle_free(path , obstacle_list):
 		path = rrt_st_path.do_RRT(show_animation = False , start_point_coors = list(start) , end_point_coors = list(end) , obstacleList2 = obstacle_list)
-		path = [Point(p[0] , p[1]) for p in path]
-
-	return path
-
-
-
-
-
-
-
-#Plotting the new
-#set of points
-#
-# fig = plt.figure(1, figsize=(5,5), dpi=90)
-# ax = fig.add_subplot(111)
-# for obs in obstacles:
-#     patch = PolygonPatch(obs)
-#     ax.add_patch(patch)
-# plt.axis([-1, 8, -1, 8])
-# for pn in points:
-#     plt.plot(pn.x, pn.y, "ok",300)
-# plt.show()
+		
+        return path

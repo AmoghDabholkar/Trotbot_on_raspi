@@ -15,10 +15,12 @@ class Current():
 
     def __init__(self):
         self.initialize_data()
+        
         self.path_pub = rospy.Publisher("final_path", Exp_msg, queue_size = 10)
         odometry_sub = rospy.Subscriber("odom", Odometry, self.odom_update)
         obstacle_sub = rospy.Subscriber("ol1", Ipoly, self.update_obst_list)
         gp_sub = rospy.Subscriber("global_plan", Float32MultiArray, self.main_response)
+        
         rospy.Timer(rospy.Duration(0.05), self.dynamic_caller)
 
     def initialize_data(self):
@@ -30,22 +32,25 @@ class Current():
         self.curr_target = (0, 0)
         self.target_changed = False
 
+    def path_convert(self):
+        """Convert path into Exop_msg message type."""
+        pub_path = Exp_msg()
+        for i in self.path:
+            epoint = Cordi()
+            (epoint.x, epoint.y) = i
+            pub_path.bliss.append(epoint)
+        return(pub_path)
+
     def odom_update(self, data):
         """Update current position of bot."""
-        self, curr_pos = (data.pose.pose.position.x, data.pose.pose.position.y)
+        self.curr_pos = (data.pose.pose.position.x, data.pose.pose.position.y)
 
     def main_response(self, data):
        	"""Updates goal position and calls rrt."""
         if((data.data[0], data.data[1]) != self.curr_target):
             self.curr_target = (data.data[0], data.data[1])
             self.path = dri.rrtst.do_RRT(self.obstacle_list, show_animation = False, start_point_coors = (0, 0), end_point_coors = self.curr_target)
-            path_pub = Exp_msg()
-            for i in self.path:
-			    epoint = Cordi()
-                #print(i)
-			    (epoint.x, epoint.y) = (i[0], i[1])
-			    path_pub.bliss.append(epoint)
-            self.path_pub.publish(path_pub)
+            self.path_pub.publish(path_convert())
             self.target_changed = True
             print("global update")
         else:
@@ -65,24 +70,12 @@ class Current():
         #print("dynamic")
         if not self.target_changed:
             self.path = dri.dynamic_rrt(start = self.curr_pos, end = self.curr_target, path = self.path, obstacle_list = self.obstacle_list)
-        path_pub = Exp_msg()
-        for i in self.path:
-            print(i)
-            epoint = Cordi()
-            (epoint.x, epoint.y) = (i[0], i[1])
-            path_pub.bliss.append(epoint)
-        self.path_pub.publish(path_pub)
+        self.path_pub.publish(path_convert())
 		
-#	    self.path_pub.publish(self.path)
-
 
 def main():
-    
     rospy.init_node("commander", anonymous=True)
     curr = Current()
-
-    #path_pub = rospy.Publisher("final_path", bliss, queue_size = 10)
-    #path_pub.publish(curr.path)
 
     rospy.spin()
 

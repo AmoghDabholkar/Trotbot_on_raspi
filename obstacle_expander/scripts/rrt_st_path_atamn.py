@@ -253,9 +253,9 @@ def do_RRT(obstacleList2, show_animation, start_point_coors , end_point_coors):
     path = rrt.Planning(animation=show_animation)
     path_in=list(reversed(path[:]))
     final_path_r=final_path(path_in,obstacleList,obstacleList2)
+    final_path_r = [tuple(coors) for coors in final_path_r]    
     print("this is final path ->")
     print(final_path_r)
-
     return final_path_r
 # Draw final path
     if show_animation:
@@ -269,10 +269,10 @@ def do_RRT(obstacleList2, show_animation, start_point_coors , end_point_coors):
             plt.plot(i[0], i[1], marker='o', markersize=7, color="yellow")
         plt.show()
 
-'''
+
 if __name__ == '__main__':
     start = time.time()
     do_RRT(show_animation = True , start_point_coors = [0 , 0] , end_point_coors = [5 , 10] , obstacleList2 = [((1,1), (3,3), (1,3)) , (((5,4), (4,4), (4,5), (5,6)))])
     print(time.time() - start)
-'''
+
 
